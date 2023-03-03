@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import Web3Modal from 'web3modal';
 import { useEffect, useState } from 'react';
@@ -26,6 +25,7 @@ function App() {
             const address = await signer.getAddress();
             const balance = await provider.getBalance(address);
             const ensAddress = await provider.lookupAddress(address);
+
             const contractAddr = '0x8455a1429b3ff0fac040f87547e00bccc9834db3';
             const abi = [
                 {
@@ -111,47 +111,53 @@ function App() {
     return (
         <div className="App">
             <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                    Hi {ensAddress},Your address is {address}
-                    <br />
-                    Your balance is {balance} ETH
-                    <br />
-                    You message is {message}
-                    <br />
-                    You paidMessage is {paidMsg}
-                </p>
-                <input value={inputMsg} onChange={(e) => setInputMsg(e.target.value)}></input>
-                <button
-                    onClick={() => {
-                        async function storeFunction() {
-                            let tx = await contract.store(inputMsg);
-                            await tx.wait();
+                <div class="message-box">
+                    <h6>
+                        Hi {ensAddress} (Your ensAddress),
+                        <br />
+                        Your address is "{address}"
+                        <br />
+                        Your balance is "{balance}" ETH
+                        <br />
+                        Your message is {message} , Your paidMessage is {paidMsg}
+                    </h6>
+                    <form>
+                        <div class="input-box">
+                            <input value={inputMsg} onChange={(e) => setInputMsg(e.target.value)}></input>
+                            <label>Input message</label>
+                        </div>
+                        <a
+                            onClick={() => {
+                                async function storeFunction() {
+                                    let tx = await contract.store(inputMsg);
+                                    await tx.wait();
 
-                            let _msg = await contract.message();
-                            setMessage(_msg);
-                        }
-                        storeFunction();
-                    }}
-                >
-                    store msg
-                </button>
-                <button
-                    onClick={() => {
-                        async function storeFunction() {
-                            let tx = await contract.storePaidMsg(inputMsg, {
-                                value: ethers.utils.parseEther('0.001')
-                            });
-                            await tx.wait();
+                                    let _msg = await contract.message();
+                                    setMessage(_msg);
+                                }
+                                storeFunction();
+                            }}
+                        >
+                            store msg
+                        </a>
+                        <a
+                            onClick={() => {
+                                async function storeFunction() {
+                                    let tx = await contract.storePaidMsg(inputMsg, {
+                                        value: ethers.utils.parseEther('0.001')
+                                    });
+                                    await tx.wait();
 
-                            const _paidMsg = await contract.retrievePaidMsg();
-                            setPaidMsg(_paidMsg);
-                        }
-                        storeFunction();
-                    }}
-                >
-                    store PaidMsg
-                </button>
+                                    const _paidMsg = await contract.retrievePaidMsg();
+                                    setPaidMsg(_paidMsg);
+                                }
+                                storeFunction();
+                            }}
+                        >
+                            store PaidMsg
+                        </a>
+                    </form>
+                </div>
             </header>
         </div>
     );

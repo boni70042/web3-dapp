@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.0 <0.9.0; //版本
 
+
+
 // 合約名字,
 // 有兩個參數private,public 預設是Private:沒辦法直接看到他
 contract Storage { 
@@ -13,17 +15,21 @@ contract Storage {
 		// memory key word 是會在這個 function 結束之後消失
     // public 是指任何人都可以調用這個 function
     }
+
     function storePaidMsg(string memory str) public payable {
 		// payable 指的是可以收乙太幣的 這則訊息有手續費 0.001以太幣
         require(msg.value == 0.001 ether, "Not enough fund");
         paidMessage = str;
 		//前面成功付費的 message 傳入新的 str
     }
+
     function retrievePaidMsg() public view returns (string memory){
 		// etrievePaidMsg() 拿到付費的資訊
 		// view 查看智能合約裡的變數
         return paidMessage;
     }
+
+
 }
 
 udn70042

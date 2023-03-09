@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.7.0 <0.9.0; //版本
-
+pragma solidity ^0.8; //版本
 
 
 // 合約名字,
@@ -18,7 +17,7 @@ contract Storage {
 
     function storePaidMsg(string memory str) public payable {
 		// payable 指的是可以收乙太幣的 這則訊息有手續費 0.001以太幣
-        require(msg.value == 0.001 ether, "Not enough fund");
+        require(msg.value == 0.000001 ether, "Not enough fund");
         paidMessage = str;
 		//前面成功付費的 message 傳入新的 str
     }
@@ -29,7 +28,4 @@ contract Storage {
         return paidMessage;
     }
 
-
 }
-
-udn70042

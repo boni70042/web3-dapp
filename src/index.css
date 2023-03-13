@@ -39,7 +39,7 @@ input {
     border-radius: 10px;
     text-align: center;
     margin: 10px 0;
-    color: #f4e9cd;
+    color: #251c05;
 }
 
 button {
@@ -49,6 +49,11 @@ button {
     margin: 10px;
     border-radius: 10px;
     border: 0;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #28505a;
 }
 
 .PaidMessageItem {
@@ -59,11 +64,11 @@ button {
 }
 
 .PaidMessageItem .MessageTitle {
-  border-bottom: 1px solid #d65230;
+    border-bottom: 1px solid #d65230;
 }
 
 .PaidMessageItem button {
-  background-color: #d65230;
+    background-color: #d65230;
 }
 
 .MessageItem {
@@ -82,4 +87,5 @@ button {
 .MessageText {
     font-size: 16px;
     padding: 10px;
+    word-break: break-all;
 }

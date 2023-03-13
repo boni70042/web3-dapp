@@ -8,7 +8,7 @@ const web3Modal = new Web3Modal({
 });
 
 const Home = () => {
-    const [connect, setContract] = useState(null);
+    const [contract, setContract] = useState(null);
     const [address, setAddress] = useState('0x0');
     const [balance, setBalance] = useState('0');
     const [ensAddress, setEnsAddress] = useState('0');
@@ -16,6 +16,7 @@ const Home = () => {
     const [message, setMessage] = useState('');
     const [paidMsg, setPaidMsg] = useState('');
     const [inputMsg, setInputMsg] = useState('');
+    const [inputData, setInputData] = useState('');
 
     useEffect(() => {
         async function init() {
@@ -82,20 +83,35 @@ const Home = () => {
                 }
             ];
             const contract = new ethers.Contract(contractAddr, abi, signer);
-
             const contractBalance = await contract.provider.getBalance(contractAddr);
 
             let msg = await contract.message();
             let paidMsg = await contract.retrievePaidMsg();
+
+            // etherscan公開的api
+            const apiUrl = `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${contractAddr}&startblock=0&endblock=99999999&sort=asc`;
+
+            // 發送 HTTP 請求
+            const response = await ethers.utils.fetchJson(apiUrl);
+
+            // 取得交易記錄
+            const transactions = response.result;
+            console.log(transactions);
+            // 取得免費訊息的交易
+            const relevantTransactions = transactions.filter((tx) => tx.to.toLowerCase() === contractAddr.toLowerCase() && tx.value == 0);
+
+            // 取得取得免費訊息交易記錄裡面輸入的訊息
+            const transactionInputData = relevantTransactions.map((tx) => tx.input);
+            let inputData = transactionInputData;
 
             setContract(contract);
             setAddress(address);
             setEnsAddress(ensAddress);
             setBalance(ethers.utils.formatEther(balance));
             setContractBalance(ethers.utils.formatEther(contractBalance));
-            setContract(contract);
             setMessage(msg);
             setPaidMsg(paidMsg);
+            setInputData(inputData);
         }
         init();
     }, []);
@@ -104,55 +120,45 @@ const Home = () => {
             <header className="Home-herder">
                 My First DApp
                 <div className="InputBox">
-                    <input placeholder="Enter Some Message..."></input>
+                    <input placeholder="Enter Some Message..." value={inputMsg} onChange={(e) => setInputMsg(e.target.value)}></input>
                     <div>
+                        <button>Store Message</button>
                         <button
-                        // onClick={() => {
-                        //     async function storeFunction() {
-                        //         let tx = await contract.store(inputMsg);
-                        //         await tx.wait();
-
-                        //         let _msg = await contract.message();
-                        //         setMessage(_msg);
-                        //     }
-                        //     storeFunction();
-                        // }}
-                        >
-                            Store Message
-                        </button>
-                        <button
-                        // onClick={() => {
-                        //     async function storeFunction() {
-                        //         let tx = await contract.storePaidMsg(inputMsg, {
-                        //             value: ethers.utils.parseEther('0.000001')
-                        //         });
-                        //         await tx.wait();
-
-                        //         const _paidMsg = await contract.retrievePaidMsg();
-                        //         setPaidMsg(_paidMsg);
-                        //     }
-                        //     storeFunction();
-                        // }}
+                            onClick={() => {
+                                async function storeFunction() {
+                                    let tx = await contract.storePaidMsg(inputMsg, {
+                                        value: ethers.utils.parseEther('0.000001')
+                                    });
+                                    await tx.wait();
+                                    const _paidMsg = await contract.retrievePaidMsg();
+                                    setPaidMsg(_paidMsg);
+                                }
+                                storeFunction();
+                            }}
                         >
                             Store Paid Message
                         </button>
                     </div>
                 </div>
                 <p className="Home-content">
-                    Hi "{ensAddress}" ! <br />
+                    Hi "ensAddress" ! <br />
                     Your balance is "{balance}" ETH. <br />
                     Your address is "{address}". <br />
                     This contract balance is "{contractBalance}".
                 </p>
                 <div className="PaidMessageItem">
-                    <div className="MessageTitle">Store Paid Message</div>
+                    <div className="MessageTitle">
+                        Store Paid Message <br />
+                    </div>
                     <div className="MessageText">{paidMsg}</div>
                 </div>
-                <div className="MessageItem">
-                    <div className="MessageTitle">Store Message</div>
-                    <div className="MessageText">{message}</div>
-                    <button className="MessageItemRemove">Remove</button>
-                </div>
+                {Array.isArray(inputData) &&
+                    inputData.map((tx) => (
+                        <div className="MessageItem">
+                            <div className="MessageTitle">Store Message</div>
+                            <div className="MessageText">{tx}</div>
+                        </div>
+                    ))}
             </header>
         </div>
     );
